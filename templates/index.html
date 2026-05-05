@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nargan Mapper | نگاشت‌گر دیتاشیت‌های PT و CV</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    <style>
+        * { font-family: 'Vazirmatn', sans-serif; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">⚙️</div>
+                <div class="logo-text">
+                    <h1>Nargan Mapper</h1>
+                    <span>نگاشت‌گر هوشمند دیتاشیت‌های صنعتی</span>
+                </div>
+            </div>
+            <div class="license-badge">
+                <div class="license-icon">💎</div>
+                <div class="license-info">
+                    <span class="license-label">اعتبار باقیمانده</span>
+                    <span class="license-value" id="remainingQuota">2000</span>
+                    <span class="license-unit">شیت</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="main-card">
+                <div class="section-title">
+                    <h2>📤 آپلود فایل دیتاشیت</h2>
+                    <p>فایل اکسل PT یا CV خود را آپلود کنید</p>
+                </div>
+
+                <!-- Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">
+                        <h3>فایل را اینجا رها کنید یا کلیک کنید</h3>
+                        <p>فرمت‌های مجاز: .xlsx, .xlsm, .xls</p>
+                    </div>
+                    <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" hidden>
+                </div>
+
+                <!-- File Info -->
+                <div class="file-info" id="fileInfo" style="display: none;">
+                    <div class="file-icon">✅</div>
+                    <div class="file-details">
+                        <span class="file-name" id="fileName"></span>
+                        <span class="file-size" id="fileSize"></span>
+                    </div>
+                    <button class="btn-remove" id="btnRemove">✕</button>
+                </div>
+
+                <!-- Save Path -->
+                <div class="save-path-section">
+                    <label>📁 مسیر ذخیره فایل خروجی (اختیاری)</label>
+                    <div class="path-input-group">
+                        <input type="text" id="savePath" class="path-input" placeholder="مسیر پوشه را انتخاب کنید یا خالی بگذارید..." readonly>
+                        <button class="btn-browse" id="btnBrowse">📂 انتخاب پوشه</button>
+                    </div>
+                </div>
+
+                <!-- Process Button -->
+                <button class="btn-process" id="btnProcess" disabled>
+                    <span>🚀</span>
+                    <span>پردازش و تبدیل</span>
+                </button>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-section" id="progressSection" style="display: none;">
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <h3>⏳ در حال پردازش...</h3>
+                        <span class="progress-status" id="progressStatus">شناسایی نوع فایل</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+                    </div>
+                    <div class="progress-steps">
+                        <div class="step" id="step1"><span class="step-icon">۱</span><span>بارگذاری</span></div>
+                        <div class="step" id="step2"><span class="step-icon">۲</span><span>تشخیص نوع</span></div>
+                        <div class="step" id="step3"><span class="step-icon">۳</span><span>پردازش</span></div>
+                        <div class="step" id="step4"><span class="step-icon">۴</span><span>نگاشت</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result -->
+            <div class="result-section" id="resultSection" style="display: none;">
+                <div class="result-card success">
+                    <div class="result-icon">✅</div>
+                    <div class="result-content">
+                        <h3>پردازش با موفقیت انجام شد!</h3>
+                        <div class="result-stats">
+                            <div class="stat"><span class="stat-value" id="resultSheets">-</span><span class="stat-label">شیت پردازش شده</span></div>
+                            <div class="stat"><span class="stat-value" id="resultRecords">-</span><span class="stat-label">رکورد استخراج شده</span></div>
+                            <div class="stat"><span class="stat-value" id="resultType">-</span><span class="stat-label">نوع فایل</span></div>
+                        </div>
+                        <div class="result-file"><span>📥 فایل خروجی: </span><code id="resultFilename">-</code></div>
+                    </div>
+                    <button class="btn-download" id="btnDownload">⬇️ دانلود فایل</button>
+                </div>
+            </div>
+
+            <!-- Error -->
+            <div class="result-section" id="errorSection" style="display: none;">
+                <div class="result-card error">
+                    <div class="result-icon">❌</div>
+                    <div class="result-content">
+                        <h3>خطا در پردازش</h3>
+                        <p class="error-message" id="errorMessage"></p>
+                        <div class="license-warning" id="licenseWarning" style="display: none;">
+                            <span class="warning-icon">⚠️</span>
+                            <div>
+                                <strong>لایسنس محدود شده</strong>
+                                <p id="licenseMessage"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats (اختیاری) -->
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-card-icon">📊</div><div class="stat-data"><span class="stat-number" id="totalSheets">۰</span><span class="stat-desc">شیت پردازش شده</span></div></div>
+                    <div class="stat-card"><div class="stat-card-icon">📑</div><div class="stat-data"><span class="stat-number" id="totalFiles">۰</span><span class="stat-desc">فایل پردازش شده</span></div></div>
+                    <div class="stat-card"><div class="stat-card-icon">📝</div><div class="stat-data"><span class="stat-number" id="totalRecords">۰</span><span class="stat-desc">رکورد استخراج شده</span></div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>ساخته شده با ❤️ برای صنعت نفت و گاز</p>
+            <p class="copyright">Nargan Mapping Tool v1.0</p>
+        </div>
+    </footer>
+
+<input type="file" id="folderInput" webkitdirectory multiple style="display: none;">
+
+    <script src="/static/js/app.js"></script>
+
+    <script>
+        console.log('✅ Nargan Mapper - Page loaded');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM ready - Initializing app...');
+            if (typeof NarganMapper !== "undefined") {
+                window.narganMapper = new NarganMapper();
+            } else {
+                console.error("❌ NarganMapper class not found!");
+            }
+        });
+    </script>
+</body>
+</html>

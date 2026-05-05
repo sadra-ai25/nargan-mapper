@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  nargan-mapper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nargan-mapper
+    ports:
+      - "9004:9004"
+    volumes:
+      - ./database:/app/database
+      - ./cache:/tmp/nargan_cache
+      - ./exports:/app/exports
+    environment:
+      - DEBUG=false
+      - HOST=0.0.0.0
+      - PORT=9004
+      - DATABASE_URL=sqlite:///./database/nargan.db
+      - DEFAULT_LICENSE_LIMIT=500
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
