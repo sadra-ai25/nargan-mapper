@@ -1,0 +1,51 @@
+# Environment variables
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Database files (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+database/nargan.db
+
+# Excel files (در صورت تمایل می‌توانید اکسل‌های نمونه را نگه دارید، اما معمولاً بهتر است در گیت نباشند)
+*.xlsx
+*.xls
+*.csv
+# اگر می‌خواهید فایل‌های اکسل داخل src نگه داشته شوند، خطوط بالا را حذف کنید یا پترن‌های خاص بدهید.
+# اما با توجه به ساختار، بهتر است اکسل‌ها در گیت نباشند مگر اینکه منبع اصلی باشند.
+# برای اطمینان، فایل‌های اکسل داخل src را هم نادیده می‌گیریم (اگر داده‌های ثابت هستند، می‌توانید خط زیر را حذف کنید):
+src/mappers/*.xlsx
+
+# Backup/Copy files (فایل‌های کپی شده در پروژه شما زیاد هستند)
+* copy.*
+* -copy.*
+*ـcopy.*
+* کپی.*
+* backup.*
+*old.*
+*temp.*
+*~
+
+# IDE & OS specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Gitignore itself
+.gitignore
