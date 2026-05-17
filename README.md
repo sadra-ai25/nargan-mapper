@@ -27,25 +27,26 @@ Intelligent mapping service that transforms PT and CV datasheet Excel files into
 ## Architecture
 
 ```
-Client  ──POST /upload (Excel file)──▶  FastAPI
+Client  ──POST /api/upload (Excel)──▶  FastAPI
+                                            │
+                                    File Validator
+                                    (xlsx/xlsm/xls)
                                             │
                                     License Middleware
-                                    (check row limit)
+                                    (check row usage limit)
                                             │
-                                     File Validator
-                                    (size, extension)
-                                            │
+                                    detect_file_type()
                                ┌────────────┴────────────┐
                                ▼                         ▼
                           CV Mapper                  PT Mapper
-                    (OpenCV column match)        (ML-based mapping)
+                    (process_cv_ui)             (process_pt_ui)
                                │                         │
                                └────────────┬────────────┘
                                             │
-                                    SQLite  (log usage)
+                            SQLite (log usage, cache session)
                                             │
                                             ▼
-                               Mapped Excel File  →  Client
+                           session_id ──GET /api/download/{id}──▶ Client
 ```
 
 ## Prerequisites
@@ -86,26 +87,27 @@ docker compose up -d --build
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/upload` | Upload Excel datasheet and receive mapped output |
-| `GET` | `/health` | Service health and license usage status |
-| `GET` | `/usage` | Current license usage statistics |
+| `GET` | `/` | Web UI |
+| `GET` | `/health` | Service health check |
+| `POST` | `/api/upload` | Upload Excel datasheet; auto-detects CV or PT type |
+| `GET` | `/api/download/{session_id}` | Download the mapped Excel result |
+| `GET` | `/api/license` | License info and usage stats for current IP |
+| `POST` | `/api/license/reset` | Reset license counters (admin) |
 
-### Example: Map a Datasheet
+> File type (CV vs PT) is detected automatically from the uploaded Excel structure via `detect_file_type`. Results are cached for `CACHE_TTL_HOURS` hours and served via a session-based download link.
+
+### Example: Upload and Map a Datasheet
 
 ```bash
-curl -X POST http://localhost:9004/upload \
+# Step 1: Upload
+curl -X POST http://localhost:9004/api/upload \
   -F "file=@PT_datasheet.xlsx" \
-  -F "type=PT" \
+  -F "save_path=" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['session_id'])"
+
+# Step 2: Download result with session_id
+curl http://localhost:9004/api/download/<session_id> \
   --output mapped_output.xlsx
-```
-
-### Response Headers
-
-```
-Content-Disposition: attachment; filename="PT_datasheet_mapped.xlsx"
-Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-X-Rows-Processed: 42
-X-License-Remaining: 458
 ```
 
 ## License Enforcement
